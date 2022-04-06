@@ -1,7 +1,5 @@
-use std::string::String;
-
 #[test]
-pub fn borrows() {
+fn borrows1() {
     let mut x = String::from("hello");
     {
         let y = &mut x;
@@ -58,7 +56,6 @@ fn borrows3() {
 
     println!("the first word is: {}", word /* word2 */);
 }
-
 #[test]
 fn borrows4() {
     let mut s1 = String::from("hello");
@@ -72,6 +69,53 @@ fn borrows4() {
 
     println!("The length of '{}' is {}.", s1, len);
 }
+
+#[test]
+fn borrows5() {
+    let x = 5;
+    let arr = [Some(5); 1024];
+    let a = arr[2];
+
+    let vec = vec![Some(5)];
+    let b = vec[0];
+    let c = &a;
+    let d = "";
+
+    // println!("{:?}, {:?}, {:?}, {:?}", a, b, vec[0], &vec[0]);
+    println!(
+        "{d} {:p}, {salam:?}, {:p}, {:p}, {:p}, {:p}",
+        &c,
+        c,
+        &b,
+        &vec[0],
+        &vec[0],
+        salam = 12
+    );
+}
+
+#[test]
+fn borrows6() {
+    let arr = [Some(5); 1024];
+    let a = arr[2];
+
+    let vec = vec![Some(5)];
+    let b = vec[0];
+    let c = &a;
+    let d = "";
+
+    // println!("{:?}, {:?}, {:?}, {:?}", a, b, vec[0], &vec[0]);
+    println!(
+        "{d} {:p}, {salam:?}, {:p}, {:p}, {:p}, {:p}",
+        &c,
+        c,
+        &b,
+        &vec[0],
+        &vec[0],
+        salam = 12
+    );
+}
+
+// pointers
 
 #[test]
 fn pointer1() {
@@ -102,63 +146,4 @@ fn pointer2() {
     let a = Rc::clone(&b);
     println!("a is not equal to b: {}", eq(&a, &b));
     println!("*a is equal to *b: {}", eq(&*a, &*b));
-}
-
-mod limit_tracker {
-    pub trait Messenger {
-        fn send(&mut self, msg: &str);
-    }
-    pub struct LimitTracker<T: Messenger> {
-        pub messenger: T,
-        value: usize,
-        max: usize,
-    }
-    impl<T: Messenger> LimitTracker<T> {
-        pub fn new(messenger: T, max: usize) -> LimitTracker<T> {
-            LimitTracker {
-                messenger,
-                value: 0,
-                max,
-            }
-        }
-        pub fn set_value(&mut self, value: usize) {
-            self.value = value;
-            let percentage_of_max = self.value as f64 / self.max as f64;
-            if percentage_of_max >= 1.0 {
-                self.messenger.send("Error: You are over your quota!");
-            } else if percentage_of_max >= 0.9 {
-                self.messenger
-                    .send("Urgent warning: You've used up over 90% of your quota!");
-            } else if percentage_of_max >= 0.75 {
-                self.messenger
-                    .send("Warning: You've used up over 75% of your quota!");
-            }
-        }
-    }
-
-    struct MockMessenger {
-        sent_messages: Vec<String>,
-    }
-    impl MockMessenger {
-        fn new() -> MockMessenger {
-            MockMessenger {
-                sent_messages: vec![],
-            }
-        }
-    }
-    impl Messenger for MockMessenger {
-        fn send(&mut self, message: &str) {
-            self.sent_messages.push(String::from(message));
-        }
-    }
-
-    #[test]
-    fn x() {
-        let mock_messenger = MockMessenger::new();
-        let mut limit_tracker = LimitTracker::new(mock_messenger, 100);
-
-        limit_tracker.set_value(80);
-
-        assert_eq!(limit_tracker.messenger.sent_messages.len(), 1);
-    }
 }
